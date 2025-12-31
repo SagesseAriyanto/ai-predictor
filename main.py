@@ -1,6 +1,7 @@
 import streamlit as st
 import pickle
 import numpy as np
+import pandas as pd
 
 
 def predict_category(desciption):
@@ -10,6 +11,7 @@ def predict_category(desciption):
     desc_vec = category_vectorizer.transform([desciption])
     # Predict the category
     category_prediction = category_model.predict(desc_vec)[0]
+    return category_prediction
 
 
 def predict_success(description, category, price):
@@ -40,16 +42,19 @@ st.markdown(
     "<h5 style='text-align: center;'>Validate your vision against 4,000 existing AI tools</h5>",
     unsafe_allow_html=True,
 )
-
 company_name = st.text_input("Enter your AI company name:")
 description = st.text_area("Enter a brief description of your AI company:")
 
 if st.button("Predict"):
     if description:
         category = predict_category(description)
-        st.success(f"Category: {category} ✔️")
-        st.subheader("Success Probability by Price")
+        st.success(f"Category: {category}")
         price_types = ["Free", "Freemium", "Paid"]
-        for price in price_types:
-            success_prob = predict_success(description, category, price)
-            st.write(f"{price}: {success_prob}% chance of success")
+        success_probs = [predict_success(description, category, price).join(" %") for price in price_types]
+        st.table(
+            pd.DataFrame(
+                [success_probs],
+                columns=price_types,
+                index=["Success Probability"],
+            )
+        )
