@@ -41,36 +41,43 @@ st.markdown(
     unsafe_allow_html=True,
 )
 st.title("ValidAI", anchor=False, text_alignment="center")
-# Option 2: Light blue background
 st.markdown(
-    "<h4 style='text-align: center; margin-top: -1rem; margin-bottom: 1rem;'>Validate your vision against <span style='background-color: #DDD6FE; color: #374151; padding: 4px 8px; border-radius: 5px; font-weight: 700;'>4000 existing AI tools</span></h4>",
+    "<div style='text-align: center; margin-top: -1rem; margin-bottom: 1.3rem; font-size: 1.3rem; font-weight: 660;'>Validate your vision against <span style='background-color: #DDD6FE; color: #374151; padding: 2.5px 7px; border-radius: 5px; font-weight: 700; margin-left: 3px;'>4000 existing AI tools</span></div>",
     unsafe_allow_html=True,
 )
 
-# Option 1: Soft white with purple accents (clean, professional)
-description = st.text_area(
-    "description",
-    height=150,
-    max_chars=300,
-    placeholder="Briefly describe your AI tool",
-    label_visibility="collapsed",
-)
-st.markdown(
-    """
-<style>
-textarea {
-resize: none !important;
-}
-</style>
-""",
-    unsafe_allow_html=True,
-)
 
-if st.button("Predict"):
-    if description:
-        category = predict_category(description)
-        st.success(f"Category: {category}")
-        price_types = ["Free", "Freemium", "Paid"]
-        success_probs = [predict_success(description, category, price).join(" %") for price in price_types]
-        col1, col2, col3 = st.columns(3)
-        col1.metric(label="Free", value=success_probs[0])
+validate, chat, dataset = st.tabs(["Validate", "Chat", "Dataset"])
+with validate:
+    description = st.text_area(
+        "description",
+        height=150,
+        max_chars=300,
+        placeholder="Briefly describe your AI tool",
+        label_visibility="collapsed",
+    )
+    st.markdown(
+        """
+    <style>
+    textarea {
+    resize: none !important;
+    }
+    </style>
+    """,
+        unsafe_allow_html=True,
+    )
+
+    btn = st.button("Validate", type="secondary", width="stretch")
+
+with chat:
+    st.info("Coming Soon!")
+
+with dataset:
+    st.info("Coming Soon!")
+    # if description:
+    #     category = predict_category(description)
+    #     st.success(f"Category: {category}")
+    #     price_types = ["Free", "Freemium", "Paid"]
+    #     success_probs = [predict_success(description, category, price).join(" %") for price in price_types]
+    #     col1, col2, col3 = st.columns(3)
+    #     col1.metric(label="Free", value=success_probs[0])
