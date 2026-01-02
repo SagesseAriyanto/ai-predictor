@@ -37,11 +37,14 @@ def predict_success(description, category, price):
     return success_prob
 
 
-st.markdown("<h1 style='text-align: center;'>ValidAI</h1>", unsafe_allow_html=True)
+st.title("ValidAI", anchor=False, text_alignment="center")
+# Option 2: Light blue background
 st.markdown(
-    "<h5 style='text-align: center;'>Validate your vision against 4,000 existing AI tools</h5>",
+    "<h4 style='text-align: center; margin-top: -1rem; margin-bottom: 1rem;'>Validate your vision against <span style='background-color: #E0F2FF; color: #374151; padding: 4px 8px; border-radius: 5px; font-weight: 700;'>4000 existing AI tools</span></h4>",
     unsafe_allow_html=True,
 )
+
+
 company_name = st.text_input("Enter your AI company name:")
 description = st.text_area("Enter a brief description of your AI company:")
 
@@ -51,10 +54,5 @@ if st.button("Predict"):
         st.success(f"Category: {category}")
         price_types = ["Free", "Freemium", "Paid"]
         success_probs = [predict_success(description, category, price).join(" %") for price in price_types]
-        st.table(
-            pd.DataFrame(
-                [success_probs],
-                columns=price_types,
-                index=["Success Probability"],
-            )
-        )
+        col1, col2, col3 = st.columns(3)
+        col1.metric(label="Free", value=success_probs[0])
