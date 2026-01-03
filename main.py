@@ -128,13 +128,13 @@ with validate_tab:
             percent_diff = round(((companies_count - median_size) / median_size) * 100, 1)
             if percent_diff <= -10:
                 count_text = f"{percent_diff}% less crowded"
-                count_color = "normal"
+                count_color = "inverse"
             elif percent_diff < 10:
                 count_text = f"{percent_diff}% average crowding"
                 count_color = "off"
             else:
                 count_text = f"{percent_diff}% more crowded"
-                count_color = "inverse"
+                count_color = "normal"
 
             average_success = get_average_success()
 
