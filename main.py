@@ -112,7 +112,7 @@ with validate_tab:
             price_types = ["Free", "Freemium", "Paid"]
             success_scores = [predict_success(description, category, price) for price in price_types]
             success_avg = round(sum(success_scores) / len(success_scores))
-            col1, col2, col3 = st.columns(3)
+            col1, col2, col3 = st.columns([2.07,1,1])
 
             # Load additional metrics
             rank, total_categories = get_rank(category)
@@ -127,20 +127,32 @@ with validate_tab:
             median_size = get_median_size()
             percent_diff = round(((companies_count - median_size) / median_size) * 100, 1)
             if percent_diff <= -10:
-                count_text = f"{percent_diff}% less crowded"
+                count_text = f"{percent_diff}% less comp"
                 count_color = "inverse"
             elif percent_diff < 10:
-                count_text = f"{percent_diff}% average crowding"
+                count_text = f"{percent_diff}% average comp"
                 count_color = "off"
             else:
-                count_text = f"{percent_diff}% more crowded"
-                count_color = "normal"
+                count_text = f"{percent_diff}% more comp"
+                count_color = "inverse"
 
-            average_success = get_average_success()
+            average_total_success = get_average_success()
+            success_diff = round(success_avg - average_total_success,1)
+            if success_diff >= 10:
+                success_text = f"{success_diff}% above avg"
+                success_color = "normal"
+            elif success_diff <= -10:
+                success_text = f"{success_diff}% below avg"
+                success_color = "normal"
+            else:
+                success_text = f"{success_diff}% near avg"
+                success_color = "off"
 
             col1.metric(
                 label="Market",
                 value=f"{category}",
+                width="stretch",
+                delta_arrow="off",
                 border=True,
                 help="The identified category based on your description.",
                 delta=rank_text,
@@ -162,9 +174,9 @@ with validate_tab:
                 label="Score",
                 value=f"{success_avg}%",
                 border=True,
-                delta=f"{success_avg - 50}% vs Avg",  # Shows if you are above/below average (50%)
-                chart_data=success_scores,  # <--- Uses your list [Free, Freemium, Paid] scores
                 help="Success probability across different pricing models (Free vs Paid).",
+                delta=success_text,
+                delta_color=success_color
             )
 
 
