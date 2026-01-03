@@ -21,7 +21,7 @@ def load_models():
             category_encoder, price_encoder)
 
 
-def get_company_counts(category):
+def get_company_counts(category) -> tuple:
     df = load_data()
     return int((df['Category'] == category).sum())
 
@@ -31,7 +31,9 @@ def get_rank(category):
     rank = category_counts.loc[category_counts['Category'] == category].index[0] + 1
     return (rank, len(category_counts))
 
-get_rank("Productivity")
+def get_median_size() -> float:
+    df = load_data()
+    return df["Category"].value_counts().median()
 
 def predict_category(desciption):
     category_model, category_vectorizer, _, _, _, _ = load_models()
