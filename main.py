@@ -33,7 +33,14 @@ def get_rank(category):
 
 def get_median_size() -> float:
     df = load_data()
-    return df["Category"].value_counts().median()
+    return round(df["Category"].value_counts().median(),1)
+
+def get_average_success() -> float:
+    df = load_data()
+    df.dropna(inplace=True)
+    df["Category_median"] = df.groupby("Category")["Upvotes"].transform("median")
+    df["Success"] = (df["Upvotes"] >= df["Category_median"]).astype(int)
+    return round(df["Success"].mean() * 100, 1)
 
 def predict_category(desciption):
     category_model, category_vectorizer, _, _, _, _ = load_models()
