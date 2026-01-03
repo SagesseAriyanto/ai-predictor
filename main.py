@@ -36,26 +36,33 @@ def predict_success(description, category, price):
     success_prob = int(success_model.predict_proba(features)[0][1] * 100)
     return success_prob
 
+
+
+# Streamlit title and subtitle
 st.markdown(
     "<div style='text-align: center; font-size: 4rem; margin-bottom: -2.5rem;'>🤖</div>",
     unsafe_allow_html=True,
 )
 st.title("ValidAI", anchor=False, text_alignment="center")
 st.markdown(
-    "<div style='text-align: center; margin-top: -1rem; margin-bottom: 1.3rem; font-size: 1.3rem; font-weight: 660;'>Validate your vision against <span style='background-color: #DDD6FE; color: #374151; padding: 2.5px 7px; border-radius: 5px; font-weight: 700; margin-left: 3px;'>4000 existing AI tools</span></div>",
+    "<div style='text-align: center; margin-top: -1rem; margin-bottom: 0.7rem; font-size: 1.3rem; font-weight: 660;'>Validate your vision against <span style='background-color: #DDD6FE; color: #374151; padding: 2.5px 7px; border-radius: 5px; font-weight: 700; margin-left: 3px;'>4000 existing AI tools</span></div>",
     unsafe_allow_html=True,
 )
 
+# Tabs for different functionalities
+validate_tab, chat_tab, dataset_tab = st.tabs(["Validate", "Chat", "Dataset"])
 
-validate, chat, dataset = st.tabs(["Validate", "Chat", "Dataset"])
-with validate:
+# Validate Tab
+with validate_tab:
+    # Description Input
     description = st.text_area(
-        "description",
+        "",
         height=150,
         max_chars=300,
         placeholder="Briefly describe your AI tool",
         label_visibility="collapsed",
     )
+    # Custom CSS for Text Area
     st.markdown(
         """
     <style>
@@ -66,13 +73,25 @@ with validate:
     """,
         unsafe_allow_html=True,
     )
+    if description:
+        # Optional: Add a spinner so it feels responsive
+        with st.spinner("Analyzing..."):
+            category = predict_category(description)
+            st.success(f"Category: {category}")
+            price_types = ["Free", "Freemium", "Paid"]
+            success_probs = [predict_success(description, category, price) for price in price_types]
+            col1, col2, col3 = st.columns(3)
+            col1.metric(label="Free", value=f"{success_probs[0]} %")
+            col2.metric(label="Freemium", value=f"{success_probs[1]} %")
+            col3.metric(label="Paid", value=f"{success_probs[2]} %")
 
-    btn = st.button("Validate", type="secondary", width="stretch")
 
-with chat:
+# Chat Tab
+with chat_tab:
     st.info("Coming Soon!")
 
-with dataset:
+# Dataset Tab
+with dataset_tab:
     st.info("Coming Soon!")
     # if description:
     #     category = predict_category(description)
