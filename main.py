@@ -113,23 +113,47 @@ with validate_tab:
             success_scores = [predict_success(description, category, price) for price in price_types]
             success_avg = round(sum(success_scores) / len(success_scores))
             col1, col2, col3 = st.columns(3)
-            # 1. MARKET (Simple & Clean)
+
+            # Load additional metrics
+            rank, total_categories = get_rank(category)
+            rank_text = f"Rank {rank} of {total_categories}"
+            if rank <= 5:
+                rank_color = "normal"
+            elif rank <= 10:
+                rank_color = "off"
+            else:
+                rank_color = "inverse"
+
+            median_size = get_median_size()
+            percent_diff = round(((companies_count - median_size) / median_size) * 100, 1)
+            if percent_diff <= -10:
+                count_text = f"{percent_diff}% less crowded"
+                count_color = "normal"
+            elif percent_diff < 10:
+                count_text = f"{percent_diff}% average crowding"
+                count_color = "off"
+            else:
+                count_text = f"{percent_diff}% more crowded"
+                count_color = "inverse"
+
+            average_success = get_average_success()
+
             col1.metric(
                 label="Market",
                 value=f"{category}",
                 border=True,
                 help="The identified category based on your description.",
+                delta=rank_text,
+                delta_color=rank_color
             )
 
-            # 2. COMPETITION (Uses 'inverse' delta)
-            # Logic: If competition is high (>500), show it as 'red' (inverse), otherwise green.
             col2.metric(
                 label="Competition",
                 value=f"{companies_count}",
                 border=True,
-                delta="High Saturation" if companies_count > 500 else "Low Saturation",
-                delta_color="inverse",  # Red arrow if high, Green arrow if low
                 help="Number of existing tools in this specific market.",
+                delta=count_text,
+                delta_color=count_color
             )
 
             # 3. SCORE (Uses 'chart_data' from your list!)
