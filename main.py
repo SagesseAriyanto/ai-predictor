@@ -220,7 +220,36 @@ with validate_tab:
                     "Competition": cat_count_list,
                 }
             )
-            
+            # Melt for grouped bars
+            chart_melted = chart_df.melt(id_vars="Label", var_name="Metric", value_name="Value")
+
+            fig = px.bar(
+                chart_melted,
+                x="Label",
+                y="Value",
+                color="Metric",
+                barmode="group",
+                log_y=True,  # Log scale for visibility
+                color_discrete_map={"Upvotes": "#C4B5FD", "Competition": "#FB923C"},
+            )
+            fig.update_xaxes(title_text="", tickangle=25)
+            fig.update_yaxes(title_text="")
+            fig.update_layout(
+                height=400,
+                title=dict(
+                    text="Overview",
+                ),
+                legend=dict(
+                    title="",
+                    orientation="h",
+                    yanchor="bottom",
+                    y=1.02,
+                    xanchor="right",
+                    x=1,
+                ),
+            )
+            st.plotly_chart(fig)
+
             # # Plotly bar chart
             # # Melt for grouped bars
             # # Melt for grouped bars
