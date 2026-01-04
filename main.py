@@ -2,6 +2,7 @@ import streamlit as st
 import pickle
 import numpy as np
 import pandas as pd
+import plotly.express as px
 
 @st.cache_data(show_spinner=False)
 def load_data():
@@ -28,7 +29,8 @@ def get_company_counts(category) -> tuple:
 def get_rank(category):
     df = load_data()
     category_counts = df.groupby("Category", as_index=False)["Upvotes"].sum().sort_values(by="Upvotes", ascending=False).reset_index(drop=True)
-    rank = category_counts.loc[category_counts['Category'] == category].index[0] + 1
+    category_counts['Rank'] = category_counts.index + 1
+    rank = category_counts.loc[category_counts['Category'] == category, 'Rank'].values[0]
     total = len(category_counts)
 
     # Finding 5-category window
@@ -147,8 +149,7 @@ with validate_tab:
                 rank_color = "inverse"
             category_list = window['Category'].tolist()
             upvote_list = window['Upvotes'].tolist()
-            window_labeled = window.copy()
-            window_labeled["Label"] = window_labeled.index.to_series().add(1).astype(str) + ". " + window_labeled["Category"]
+            rank_list = window['Rank'].tolist()
 
             # Data for second column (Competition)
             median_size, cat_count_list = get_median_size(category_list)
@@ -189,13 +190,6 @@ with validate_tab:
                 help="Category rank by total upvotes (higher = more popular)",
                 delta=rank_text,
                 delta_color=rank_color,
-                chart_data=upvote_list,
-                chart_type="line"
-            )
-            st.bar_chart(
-                window_labeled.set_index("Label")["Upvotes"],
-                height=140,  # optional
-                use_container_width=True,
             )
 
             # Competition Metrics
@@ -218,6 +212,32 @@ with validate_tab:
                 delta_color=success_color,
             )
 
+            # Create chart dataframe
+            chart_df = pd.DataFrame(
+                {
+                    "Label": [f"{r}. {c}" for r, c in zip(rank_list, category_list)],
+                    "Upvotes": upvote_list,
+                    "Competition": cat_count_list,
+                }
+            )
+            
+            # # Plotly bar chart
+            # # Melt for grouped bars
+            # # Melt for grouped bars
+            # chart_melted = chart_df.melt(id_vars="Label", var_name="Metric", value_name="Value")
+
+            # fig = px.bar(
+            #     chart_melted,
+            #     x="Label",
+            #     y="Value",
+            #     color="Metric",
+            #     barmode="group",
+            #     log_y=True,  # Log scale for visibility
+            #     labels={"Label": "Category (Rank)", "Value": "Count (log scale)"},
+            # )
+
+            # fig.update_layout(height=300)
+            # st.plotly_chart(fig, use_container_width=True, theme="streamlit")
 
 # Chat Tab
 with chat_tab:
