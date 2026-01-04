@@ -3,6 +3,7 @@ import pickle
 import numpy as np
 import pandas as pd
 import plotly.express as px
+from chatbot import get_resp
 
 @st.cache_data(show_spinner=False)
 def load_data():
@@ -315,15 +316,31 @@ with validate_tab:
 
 # Chat Tab
 with chat_tab:
-    st.info("Coming Soon!")
+    st.title("Your Chatbot")
+
+    # Initialize chat history
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    # Display chat history
+    for message in st.session_state.messages:
+        # Role is either 'user' or 'assistant'
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    # Get user input
+    if prompt := st.chat_input("Type your message..."):         # walrus operator
+
+        # Append user message and chatbot response
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        response = get_resp(prompt)             # chatbot response
+        st.session_state.messages.append({"role": "assistant", "content": response})
+        with st.chat_message("assistant"):
+            st.markdown(response)
+
 
 # Dataset Tab
 with dataset_tab:
     st.info("Coming Soon!")
-    # if description:
-    #     category = predict_category(description)
-    #     st.success(f"Category: {category}")
-    #     price_types = ["Free", "Freemium", "Paid"]
-    #     success_probs = [predict_success(description, category, price).join(" %") for price in price_types]
-    #     col1, col2, col3 = st.columns(3)
-    #     col1.metric(label="Free", value=success_probs[0])
