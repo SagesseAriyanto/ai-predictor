@@ -24,6 +24,7 @@ def load_chatbot_data():
 
     return df, categories_list, prices_list
 
+@st.cache_data
 def get_available_models():
     models_file = "gemini_models.json"
 
@@ -50,8 +51,10 @@ def get_genai_client():
 
 
 def get_resp(question: str) -> str:
+    # Load data and initialize client
     df, categories_list, prices_list = load_chatbot_data()
     client = get_genai_client()
+    models = get_available_models()
 
     prompt = f"""
     I have a pandas DataFrame 'df' with AI tools.
