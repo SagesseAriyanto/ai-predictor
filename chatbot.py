@@ -2,30 +2,38 @@ from google import genai
 from dotenv import load_dotenv
 import pandas as pd
 import os
+import streamlit as st
+
 load_dotenv()
 
-# Read data from CSV
-df = pd.read_csv('./ai_data.csv')
 
-# Map redundant price values to 'Free'
-price_mapping = {
-    "GitHub": "Free",
-    "Open Source": "Free",
-    "Google Colab": "Free"
-}
-df['Price'] = df['Price'].replace(price_mapping)
+@st.cache_data
+def load_chatbot_data():
+    """Load and preprocess the CSV data once"""
+    df = pd.read_csv("./ai_data.csv")
 
-# Convert NaN prices to 'N/A'
-df['Price'] = df['Price'].fillna('N/A')
-df.dropna(inplace=True)
+    # Map redundant price values to 'Free'
+    price_mapping = {"GitHub": "Free", "Open Source": "Free", "Google Colab": "Free"}
+    df["Price"] = df["Price"].replace(price_mapping)
+    df["Price"] = df["Price"].fillna("N/A")
+    df.dropna(inplace=True)
 
-# Create unique lists from DataFrame columns
-categories_list = ", ".join(df['Category'].unique())
-prices_list = ", ".join(df['Price'].unique())
+    # Create unique lists from DataFrame columns
+    categories_list = ", ".join(df["Category"].unique())
+    prices_list = ", ".join(df["Price"].unique())
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+    return df, categories_list, prices_list
 
-def get_resp(question: str) -> str:    
+
+@st.cache_resource
+def get_genai_client():
+    return genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+
+def get_resp(question: str) -> str:
+    df, categories_list, prices_list = load_chatbot_data()
+    client = get_genai_client()
+
     prompt = f"""
     I have a pandas DataFrame 'df' with AI tools.
     Columns:
@@ -44,15 +52,28 @@ def get_resp(question: str) -> str:
     2. For Category searches, check if the category matches one of the Valid Values.
     3. Return ONLY the code string.
     """
+
     response = client.models.generate_content(
-        model="gemini-2.5-flash", contents=prompt
+        model="gemini-2.0-flash-exp", contents=prompt
     )
-    code = response.text.replace("```python", "").replace("```", "").replace("`", "").strip()
-    print(code)
+
+    code = (
+        response.text.replace("```python", "")
+        .replace("```", "")
+        .replace("`", "")
+        .strip()
+    )
     try:
         if code.startswith("print("):
             code = code[6:-1]
-        return eval(code)
+
+        # Run the generated code
+        result = eval(code)
+        if isinstance(result, pd.DataFrame):
+            return result.to_markdown(index=False)
+        elif isinstance(result, pd.Series):
+            return result.to_markdown()
+        else:
+            return str(result)
     except Exception as e:
-        return f"Sorry, I couldn't find that in the database."
-    
+        return f"Sorry, I couldn't find that in the database. Error: {str(e)}"

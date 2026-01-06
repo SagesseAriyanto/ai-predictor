@@ -332,7 +332,7 @@ with chat_tab:
     if prompt := st.chat_input("Ask me anything about ValidAI..."):
         # Add and display user message
         st.session_state.messages.append({"role": "user", "content": prompt})
-        response = "".join(get_resp(prompt))
+        response = get_resp(prompt)
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.rerun()
 
