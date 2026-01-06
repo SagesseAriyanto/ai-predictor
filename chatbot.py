@@ -2,6 +2,7 @@ from google import genai
 from dotenv import load_dotenv
 import pandas as pd
 import os
+import json
 import streamlit as st
 
 load_dotenv()
@@ -9,7 +10,6 @@ load_dotenv()
 
 @st.cache_data
 def load_chatbot_data():
-    """Load and preprocess the CSV data once"""
     df = pd.read_csv("./ai_data.csv")
 
     # Map redundant price values to 'Free'
@@ -23,6 +23,25 @@ def load_chatbot_data():
     prices_list = ", ".join(df["Price"].unique())
 
     return df, categories_list, prices_list
+
+def get_available_models():
+    models_file = "gemini_models.json"
+
+    if os.path.exists(models_file):
+        with open(models_file, "r") as file:
+            models_list = json.load(file)
+        return models_list
+    models_list = []
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+    for model in client.models.list():
+        if "generateContent" in model.supported_actions:
+            model_name = model.name.replace("models/", "")
+            models_list.append(model_name)
+
+    # Save models to a JSON file
+    with open(models_file, "w") as file:
+        json.dump(models_list, file)
+    return models_list
 
 
 @st.cache_resource
