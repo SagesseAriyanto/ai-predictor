@@ -7,7 +7,7 @@ from chatbot import get_resp
 import time
 
 def stream_text(text):
-    for word in text.split(""):
+    for word in text.split(" "):
         yield word + " "
         time.sleep(0.02)
 
@@ -324,38 +324,40 @@ with validate_tab:
 with chat_tab:
     st.subheader("Ask the Database")
 
-    with st.expander("ℹ️  View Data & Columns"):
-        st.markdown("""
-        - **Name:** Tool name
-        - **Category:** Productivity / Finance / etc.
-        - **Price:** Free / Freemium / Paid
-        - **Upvotes:** Popularity score
-        - **Description:** Brief tool overview
-        - **Link:** Website URL
-        """)
+    with st.expander("ℹ️  View Sample Data", expanded=False):
         try:
             sample_df = load_data().sample(n=3)
-            st.dataframe(sample_df, use_container_width=True, hide_index=True)
+            st.dataframe(sample_df[['Name', 'Category', 'Price', 'Upvotes', 'Link']], use_container_width=True, hide_index=True)
         except Exception as e:
             st.warning("Could not load data preview.")
-            
+
     # Initialize chat history
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
     # Display chat messages from history
-    with st.container(border=False, height=420):
+    chat_container = st.container(height=500, border=False)
+    with chat_container:
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
 
     # Accept user input
-    if prompt := st.chat_input("Ask me anything about ValidAI..."):
+    if prompt := st.chat_input("Ask about tools, prices, or categories"):
         # Add and display user message
         st.session_state.messages.append({"role": "user", "content": prompt})
-        response = get_resp(st.session_state.messages)
+        with chat_container:
+            with st.chat_message("user"):
+                st.markdown(prompt)
+        
+        # Process & Stream Response
+            with st.chat_message("assistant"):
+                with st.spinner("Searching..."):
+                    response = get_resp(st.session_state.messages)
+                st.write_stream(stream_text(response))
+
+        # Save to chat history
         st.session_state.messages.append({"role": "assistant", "content": response})
-        st.rerun()
 
 
 # Dataset Tab
