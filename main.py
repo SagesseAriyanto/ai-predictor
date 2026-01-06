@@ -4,6 +4,12 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 from chatbot import get_resp
+import time
+
+def stream_text(text):
+    for word in text.split(""):
+        yield word + " "
+        time.sleep(0.02)
 
 @st.cache_data(show_spinner=False)
 def load_data():
@@ -316,8 +322,23 @@ with validate_tab:
 
 # Chat Tab
 with chat_tab:
-    st.title("Your Chatbot")
+    st.subheader("Ask the Database")
 
+    with st.expander("ℹ️  View Data & Columns"):
+        st.markdown("""
+        - **Name:** Tool name
+        - **Category:** Productivity / Finance / etc.
+        - **Price:** Free / Freemium / Paid
+        - **Upvotes:** Popularity score
+        - **Description:** Brief tool overview
+        - **Link:** Website URL
+        """)
+        try:
+            sample_df = load_data().sample(n=3)
+            st.dataframe(sample_df, use_container_width=True, hide_index=True)
+        except Exception as e:
+            st.warning("Could not load data preview.")
+            
     # Initialize chat history
     if "messages" not in st.session_state:
         st.session_state.messages = []

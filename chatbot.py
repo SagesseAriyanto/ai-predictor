@@ -4,6 +4,7 @@ import pandas as pd
 import os
 import json
 import streamlit as st
+import numpy as np
 
 load_dotenv()
 
@@ -134,8 +135,8 @@ def get_resp(chat_history: list) -> str:
             else:
                 return str(result)
             
-        except SyntaxError:
-            
+        except:
+            return f"An unexpected error occured. Try rephrasing your question."
     else:
         return code
 
