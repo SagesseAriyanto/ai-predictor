@@ -50,7 +50,6 @@ def get_available_models():
 def get_genai_client():
     return genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-
 def get_resp(chat_history: list) -> str:
     # Load data and initialize client
     df, categories_list, prices_list = load_chatbot_data()
@@ -62,42 +61,35 @@ def get_resp(chat_history: list) -> str:
 
     # Extract the latest question and past history
     current_question = chat_history[-1]["content"]
-    past_history = chat_history[:-1][-5:]
+    past_history = chat_history[:-1][-3:]
 
     history_text = ""
     for msg in past_history:
         role = "User" if msg["role"] == "user" else "AI"
-        content = str(msg["content"])[:200]
+        content = str(msg["content"])[:150]
         history_text += f"{role}: {content}\n"
 
     # Hybrid prompt with context
     prompt = f"""
-    I have a pandas DataFrame 'df' with AI tools.
-    Columns:
-    - Name (str): Tool name
-    - Category (str): Valid values: {categories_list}
-    - Price (str): Valid values: {prices_list}
-    - Upvotes (int): Number of upvotes
-    - Link (str): URL
-    - Description (str)
+    Pandas DataFrame 'df' containing AI Tools.
+    - Columns: Name, Upvotes, Link, Price, Category
+    - Category: {categories_list}
+    - Price: {prices_list}
 
-    --- HISTORY ---
+    HISTORY:
     {history_text}
-    ----------------------------
     
-    CURRENT QUESTION: "{current_question}"
+    QUESTION: "{current_question}"
 
-    INSTRUCTIONS
-    1. INTENT CHECK:
-    - if the user greets or asks general concepts (e.g., "What is LLM?"), reply with a brief short simple text explanation without code.
-    - if the user asks for tool recommendations, counts, or stats, write PYTHON CODE.
-    2. CODING RULES (For Data Queries):
-    - Return ONLY the python code string. No markdown, explanations, or additional text.
-    - Fuzzy Name Search: ALWAYS use 'df[df['Name'].str.contains("search_term", case=False)]'.
-    - Category Search: Check if the category exists in Valid Values. (same for price)
-    - Sorting: Use '.sort_values(by="Upvotes", ascending=False)' for "best" or "popular" tools.
-    - Columns: Select relevant columns (.e.g., [['Name', 'Link', 'Price']]) to keep output clean.
-    """
+    INSTRUCTIONS:
+    1. GENERAL: For greetings or concepts, reply with plain text. DO NOT use the word 'df' in text.
+    2. DATA QUERY: Write 1 line of PYTHON CODE.
+       - "Popular"/"Top"/"Best": Use `df.sort_values(by='Upvotes', ascending=False)`
+       - "Find"/"Search": Use `df[df['Name'].str.contains("query", case=False)]`
+       - FILTERING: Use `.isin(['Free', 'Paid'])` for prices/categories.
+       - FORMATTING: ALWAYS use `.head(n)[['Name', 'Link', 'Upvotes']]` to select columns and limit rows.
+       - SAFETY: Return ONLY the code string.
+        """
     response = None
     for model in models:
         try:
@@ -108,8 +100,9 @@ def get_resp(chat_history: list) -> str:
         except:
             continue
     if not response:
-        return f"System overloaded. Please try again later."
+        return f"System overloaded. Please try again."
 
+    # Execute generated code
     code = (
         response.text.replace("```python", "")
         .replace("```", "")
@@ -117,7 +110,9 @@ def get_resp(chat_history: list) -> str:
         .strip()
     )
     print(f"Generated Code:\n{code}\n")
-    if code.startswith("df") or "pd." in code or "df[" in code:
+    # If response is plain text, return it immediately
+    if code.startswith("df") or code.startswith("df[") or "df" in code or "print(" in code or "pd." in code:
+        # If response is code, run it
         try:
             if code.startswith("print("):
                 code = code[6:-1]
@@ -125,19 +120,20 @@ def get_resp(chat_history: list) -> str:
             # Run the generated code
             result = eval(code)
 
-            # Format the result
+            # DataFrame (Standard Table)
             if isinstance(result, pd.DataFrame):
+                if result.empty:
+                    return "No results found."
                 return result.to_markdown(index=False)
-            
+
+            # Series (Single Column)
             elif isinstance(result, pd.Series):
-                return result.to_markdown()
-            
+                return result.to_frame().T.to_markdown(index=False)
+
             else:
                 return str(result)
-            
+
         except:
-            return f"An unexpected error occured. Try rephrasing your question."
+            return f"I couldn't process that query. Try rephrasing."
     else:
         return code
-
-get_resp([{"role": "user", "content": "give me the most popular ai tool"}])

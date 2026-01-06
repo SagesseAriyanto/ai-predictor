@@ -322,7 +322,7 @@ with validate_tab:
 
 # Chat Tab
 with chat_tab:
-    st.subheader("Ask the Database")
+    st.subheader("Ask the Database", anchor=False)
 
     with st.expander("ℹ️  View Sample Data", expanded=False):
         try:
