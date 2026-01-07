@@ -138,7 +138,7 @@ with validate_tab:
     # Description Input
     description = st.text_area(
         "",
-        height=150,
+        height=200,
         max_chars=300,
         placeholder="Briefly describe your AI tool",
         label_visibility="collapsed",
@@ -362,4 +362,47 @@ with chat_tab:
 
 # Dataset Tab
 with dataset_tab:
-    st.info("Coming Soon!")
+    try:
+        df = load_data()
+        st.caption(f"Browsing {len(df)} AI tools")
+        column_config = {
+            "Name": st.column_config.TextColumn(
+                "Name",
+                help="Tool Name",
+                width="medium",
+            ),
+            "Category": st.column_config.TextColumn(
+                "Category",
+                help="Main Category",
+                width="stretch",
+            ),
+            "Price": st.column_config.TextColumn(
+                "Price",
+                help="Cost Model",
+                width="stretch",
+            ),
+            "Upvotes": st.column_config.NumberColumn(
+                "Upvotes",
+                help="Popularity Score",
+                width="stretch",
+            ),
+            "Link": st.column_config.LinkColumn(
+                "Website",
+                help="Website Link",
+                width="stretch",
+            ),
+            "Description": st.column_config.TextColumn(
+                "Description",
+                help="Feature Summary",
+                width="stretch",
+            )
+        }
+        st.dataframe(
+            df[["Name", "Category", "Price", "Upvotes", "Link", "Description"]],
+            use_container_width=True,
+            column_config=column_config,
+            hide_index=True,
+            height =650
+        )
+    except:
+        st.warning("Could not load dataset.")
