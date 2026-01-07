@@ -364,7 +364,20 @@ with chat_tab:
 with dataset_tab:
     try:
         df = load_data()
-        st.caption(f"Browsing {len(df)} AI tools")
+        download, _ = st.columns([8,2])
+        with download:
+            # Convert DF to CSV
+            csv = df.to_csv(index=False).encode("utf-8")
+
+            # Download button
+            st.download_button(
+                label="Download",
+                data=csv,
+                file_name="validai_tools.csv",
+                mime="text/csv",
+                width="content"
+            )
+
         column_config = {
             "Name": st.column_config.TextColumn(
                 "Name",
