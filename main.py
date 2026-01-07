@@ -140,7 +140,7 @@ with validate_tab:
         "",
         height=200,
         max_chars=300,
-        placeholder="Briefly describe your AI tool",
+        placeholder="Describe what your tool does in detail for the best prediction...",
         label_visibility="collapsed",
     )
     # Custom CSS for Text Area
@@ -369,8 +369,8 @@ with dataset_tab:
         with search:
             query = st.text_input(
                 label="",
-                placeholder="Search by name...",
-                label_visibility="collapsed"
+                placeholder="Enter tool name...",
+                label_visibility="collapsed",
             )
         if query:
             filtered_df = df[df['Name'].str.contains(query, case=False, na=False)]
@@ -424,7 +424,8 @@ with dataset_tab:
                 use_container_width=True,
                 column_config=column_config,
                 hide_index=True,
-                height =final_height
+                height =final_height,
+                selection_mode=["single-column", "single-row", "multi-cell"]
             )
     except Exception as e:
         st.warning(f"Could not load dataset. Error: {e}")
