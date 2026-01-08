@@ -1,10 +1,10 @@
-# ValidAI 🤖
+# ValidAI - Validate Your AI Vision
 
 **Validate your AI startup vision against 4,000+ existing tools.**
 
-ValidAI is an intelligent dashboard designed to validate startup ideas. It uses machine learning to predict market fit and success, offers a chat assistant for insights, and provides full access to explore and filter the entire dataset of AI tools.
+ValidAI is an intelligent dashboard designed to validate your startup ideas. It uses machine learning to predict market category and success, features a chat assistant for insights, and provides full access to explore the entire dataset of AI tools.
 
-🔗 **Live Demo:** [https://validai.streamlit.app/](https://validai.streamlit.app/)
+**Live Demo:** [https://validai.streamlit.app/](https://validai.streamlit.app/)
 
 ## 🚀 Main Features
 
@@ -28,5 +28,4 @@ ValidAI is an intelligent dashboard designed to validate startup ideas. It uses 
 
 ## 📊 Data Source
 
-The dataset used in this project was generated using a custom web scraper. You can view the source code here:
-👉 **[AI Companies Scraper](https://github.com/SagesseAriyanto/AI-Companies-Scraper)**
+The dataset used in this project was generated using a custom web scraper. You can view the source code here: **[AI Companies Scraper](https://github.com/SagesseAriyanto/AI-Companies-Scraper)**
