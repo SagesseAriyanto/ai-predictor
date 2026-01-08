@@ -120,15 +120,12 @@ st.set_page_config(
     page_icon="🤖",
     layout="wide",
     menu_items={
-        "Get Help": "https://github.com/SagesseAriyanto/ai-predictor",
-        "Report a bug": "https://github.com/SagesseAriyanto/ai-predictor/issues",
         "About": """
         ### ValidAI 🤖
         Validate your AI startup idea against 4,000+ existing tools.
         
-        **Created by:** Sagesse Ariyanto
-        **GitHub:** [SagesseAriyanto](https://github.com/SagesseAriyanto)
-        **Contact:** [sagesseariyanto@gmail.com](mailto:sagesseariyanto@gmail.com)
+        **Created by:** Sagesse Ariyanto\n
+        **Website:** [sagesseariyanto](https://sagesseariyanto.com/)
         """,
     },
 )
@@ -154,7 +151,7 @@ with validate_tab:
     # Description Input
     description = st.text_area(
         "",
-        height=200,
+        height=250,
         max_chars=300,
         placeholder="Describe what your tool does in detail for the best prediction...",
         label_visibility="collapsed",
@@ -352,7 +349,7 @@ with chat_tab:
         st.session_state.messages = []
 
     # Display chat messages from history
-    chat_container = st.container(height=500, border=False)
+    chat_container = st.container(height=400, border=False)
     with chat_container:
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
@@ -379,7 +376,7 @@ with chat_tab:
 # Dataset Tab
 with dataset_tab:
     try:
-        caption, search  = st.columns([4,6], gap="medium", vertical_alignment="bottom")
+        caption, search  = st.columns([0.35,0.65], gap="medium", vertical_alignment="bottom")
         col = None
 
         # Search columun
@@ -447,7 +444,7 @@ with dataset_tab:
             }
             num_rows = len(filtered_df)
             dynamic_height = int((num_rows + 1) * 35.2)
-            final_height = min(dynamic_height, 600)
+            final_height = min(dynamic_height, 450)
 
             st.dataframe(
                 filtered_df[["Name", "Category", "Price", "Upvotes", "Link", "Description"]],
