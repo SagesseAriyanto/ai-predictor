@@ -65,8 +65,6 @@ def get_available_models():
         except:
             return
 
-get_available_models()
-
 
 @st.cache_resource
 def get_genai_client():
@@ -74,17 +72,15 @@ def get_genai_client():
 
 def get_resp(chat_history: list) -> str:
     # Load data and initialize client
-    df, categories_list, prices_list = load_chatbot_data()
+    context = load_chatbot_data()
     client = get_genai_client()
     models = get_available_models()
 
-    if df.empty: return "Error: Database not loaded."
-    if not chat_history: return "Hello! How can I help you?"
+    if not chat_history: return "Hello! I can answer general questions or tell you about the ValidAI categories."
 
     # Extract the latest question and past history
     current_question = chat_history[-1]["content"]
-    past_history = chat_history[:-1][-3:]
-
+    past_history = chat_history[:-1][-2:]
     history_text = ""
     for msg in past_history:
         role = "User" if msg["role"] == "user" else "AI"
@@ -93,28 +89,24 @@ def get_resp(chat_history: list) -> str:
 
     # Hybrid prompt with context
     prompt = f"""
-    Pandas DataFrame 'df' of AI Tools.
-    SCHEMA:
-    - Name (str): Tool name
-    - Upvotes (int): User popularity count (Higher is better)
-    - Link (str): Website URL
-    - Price (str): {prices_list}
-    - Category (str): {categories_list}
-    - Description (str): Summary of what the tool does
-
-    HISTORY:
-    {history_text}
+    You are the AI Assistant for ValidAI.
     
-    QUESTION: "{current_question}"
+    BACKGROUND DATA (Use this ONLY for dataset questions):
+    {context}
 
     INSTRUCTIONS:
-    1. GENERAL CHAT: If user greets or asks concepts, reply with plain text.
-    2. DATA QUERY: Write a SINGLE Python Expression.
-       - SYNONYMS: If user asks for 'users', 'popularity', 'traffic', or 'best', use the 'Upvotes' column.
-       - COLUMNS: Select the exact columns the user asked for.
-         * Default if unspecified: `[['Name', 'Link', 'Upvotes']]`
-       - FORMATTING: ALWAYS use `.head(n)` (even for 1 result) to return a DataFrame.
-       - SAFETY: Return ONLY the raw code string. DO NOT use print().
+    1. FIRST, check if the user's question is about the dataset (e.g. "what categories do you have?", "price of tools").
+    2. IF YES -> Use the BACKGROUND DATA to answer.
+       - LISTS: Mention only 2-3 examples and use "etc." (e.g. "Marketing, Productivity, etc."). Never list them all.
+       - MISSING INFO: If asked for specific details about the dataset that are NOT in the background data, simply tell the user to visit the ValidAI Dataset tab to search for it directly.
+    3. IF NO (e.g. greetings, "what is AI?") -> Ignore the background data and answer generally.
+       - IDENTITY: If asked who you are, identify yourself as the ValidAI assistant.
+    4. CONSTRAINT: Keep your response STRICTLY 1-2 sentences maximum.
+
+    CHAT HISTORY:
+    {history_text}
+
+    USER QUESTION: "{current_question}"
     """
     response = None
     for model in models:
@@ -128,41 +120,4 @@ def get_resp(chat_history: list) -> str:
     if not response:
         return f"System overloaded. Please try again later."
 
-    # Clean generated code
-    code = (
-        response.text.replace("```python", "")
-        .replace("```", "")
-        .replace("`", "")
-        .strip()
-    )
-    # Strip print()
-    if code.startswith("print(") and code.endswith(")"):
-        code = code[6:-1].strip()
-    
-    # Remove any trailing print statements
-    if "print(" in code:
-        code = code.split("print(")[0].strip()
-   
-    if code.startswith("df") or code.startswith("pd."):
-        # If response is code, run it
-        try:
-            # Run the generated code
-            result = eval(code)
-
-            # DataFrame (Standard Table)
-            if isinstance(result, pd.DataFrame):
-                if result.empty:
-                    return "No results found."
-                return result.to_markdown(index=False)
-
-            # Series (Single Column)
-            elif isinstance(result, pd.Series):
-                return result.to_frame().T.to_markdown(index=False)
-
-            else:
-                return str(result)
-
-        except:
-            return f"I couldn't process that query. Try rephrasing."
-    else:
-        return code
+    return response.text.strip()
