@@ -114,6 +114,26 @@ def predict_success(description, category, price):
     success_prob = int(success_model.predict_proba(features)[0][1] * 100)
     return success_prob
 
+# Configure streamlit settings
+st.set_page_config(
+    page_title="ValidAI",
+    page_icon="🤖",
+    layout="wide",
+    menu_items={
+        "Get Help": "https://github.com/SagesseAriyanto/ai-predictor",
+        "Report a bug": "https://github.com/SagesseAriyanto/ai-predictor/issues",
+        "About": """
+        ### ValidAI 🤖
+        Validate your AI startup idea against 4,000+ existing tools.
+        
+        **Created by:** Sagesse Ariyanto
+        **GitHub:** [SagesseAriyanto](https://github.com/SagesseAriyanto)
+        **Contact:** [sagesseariyanto@gmail.com](mailto:sagesseariyanto@gmail.com)
+        """
+    }
+)
+
+
 # Streamlit title and subtitle
 with st.container(border=False):
     st.markdown(
