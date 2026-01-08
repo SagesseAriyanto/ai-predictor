@@ -19,6 +19,8 @@ def load_data():
     df.dropna(inplace=True)
     return df
 
+df = load_data()
+
 @st.cache_resource(show_spinner=False)
 def load_models():
     category_model = pickle.load(open("./Models/model_category.pkl", "rb"))
@@ -32,13 +34,10 @@ def load_models():
     return (category_model, category_vectorizer, success_model, description_vectorizer,
             category_encoder, price_encoder)
 
-
 def get_company_counts(category) -> tuple:
-    df = load_data()
     return int((df['Category'] == category).sum())
 
 def get_rank(category):
-    df = load_data()
     category_counts = df.groupby("Category", as_index=False)["Upvotes"].sum().sort_values(by="Upvotes", ascending=False).reset_index(drop=True)
     category_counts['Rank'] = category_counts.index + 1
     rank = category_counts.loc[category_counts['Category'] == category, 'Rank'].values[0]
@@ -60,21 +59,18 @@ def get_rank(category):
     return (rank, total, window)
 
 def get_median_size(category_list) -> float:
-    df = load_data()
     counts = df["Category"].value_counts()
     category_count = [counts.get(cat, 0) for cat in category_list]
     median_size = round(counts.median(), 1)
     return (median_size, category_count)
 
 def get_average_success() -> float:
-    df = load_data()
     df.dropna(inplace=True)
     df["Category_median"] = df.groupby("Category")["Upvotes"].transform("median")
     df["Success"] = (df["Upvotes"] >= df["Category_median"]).astype(int)
     return round(df["Success"].mean() * 100, 1)
 
 def get_top_bottom_tools(category):
-    df = load_data()
     category_df = df[df['Category'] == category].copy()
 
     # Top 25% by upvotes
@@ -130,6 +126,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+    
 # Tabs for different functionalities
 validate_tab, chat_tab, dataset_tab = st.tabs(["Validate", "Chat (Beta)", "Dataset"])
 
@@ -326,7 +323,7 @@ with chat_tab:
 
     with st.expander("ℹ️  View Sample Data", expanded=False):
         try:
-            sample_df = load_data().sample(n=3)
+            sample_df = df.sample(n=3)
             st.dataframe(sample_df[['Name', 'Category', 'Price', 'Upvotes', 'Link']], use_container_width=True, hide_index=True)
         except Exception as e:
             st.warning("Could not load data preview.")
@@ -363,7 +360,6 @@ with chat_tab:
 # Dataset Tab
 with dataset_tab:
     try:
-        df = load_data()
         caption, search  = st.columns([4,6], gap="medium", vertical_alignment="bottom")
         col = None
 
