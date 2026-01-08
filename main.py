@@ -125,7 +125,7 @@ st.set_page_config(
         Validate your AI startup idea against 4,000+ existing tools.
         
         **Created by:** Sagesse Ariyanto\n
-        **Website:** [sagesseariyanto](https://sagesseariyanto.com/)
+        **Website:** [sagesseariyanto.com](https://sagesseariyanto.com/)
         """,
     },
 )
