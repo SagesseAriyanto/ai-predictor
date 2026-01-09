@@ -143,8 +143,8 @@ with st.container(border=False):
         unsafe_allow_html=True,
     )
 
-# Tabs for different functionalities
-validate_tab, chat_tab, dataset_tab = st.tabs(["Validate", "Chat (Beta)", "Dataset"])
+    # Tabs for different functionalities
+    validate_tab, chat_tab, dataset_tab = st.tabs(["Validate", "Chat (Beta)", "Dataset"])
 
 # Validate Tab
 with validate_tab:
@@ -332,44 +332,54 @@ with validate_tab:
                                 f'<a href="{row["Link"]}" style="padding: 4px 12px; border: 1px solid #9CA3AF; border-radius: 4px; text-decoration: none; color: #6B7280; font-size: 0.75rem; font-weight:500;">Visit</a>',
                                 unsafe_allow_html=True,
                             )
-
 # Chat Tab
 with chat_tab:
-    st.subheader("Ask the Database", anchor=False)
+    st.subheader("Ask ValidAI", anchor=False)
+    st.caption(
+        "🤖 **Powered by Google Gemini** "
+    )
 
-    with st.expander("ℹ️  View Sample Data", expanded=False):
-        try:
-            sample_df = df.sample(n=3)
-            st.dataframe(sample_df[['Name', 'Category', 'Price', 'Upvotes', 'Link']], use_container_width=True, hide_index=True)
-        except Exception as e:
-            st.warning("Could not load data preview.")
+    # 2. The Message Area (Container)
+    # We use a container to group messages, but NO fixed height.
+    # This allows the page to scroll naturally while the input stays fixed.
+    messages_container = st.container()
 
-    # Initialize chat history
     if "messages" not in st.session_state:
-        st.session_state.messages = []
+            st.session_state.messages = []
 
-    # Display chat messages from history
-    chat_container = st.container(height=400, border=False)
-    with chat_container:
+        # No chat history, display a welcome message
+    if not st.session_state.messages:
+        st.info(
+            """
+            👋 **Welcome! Ask me anything about the AI landscape.**
+            
+            Try asking:
+            * "What categories do you have?"
+            * "Do you have free tools for coding?"
+            """
+        )
+
+    with messages_container:
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
 
-    # Accept user input
-    if prompt := st.chat_input("Ask about tools, prices, or categories", max_chars=150):
-        # Add and display user message
+    if prompt := st.chat_input(
+        "Ask about AI categories, pricing, or concepts...", max_chars=150
+    ):
         st.session_state.messages.append({"role": "user", "content": prompt})
-        with chat_container:
+        with messages_container:
+            # User Message
             with st.chat_message("user"):
                 st.markdown(prompt)
-        
-        # Process & Stream Response
+
+            # AI Response
             with st.chat_message("assistant"):
-                with st.spinner("Searching..."):
+                with st.spinner("Thinking..."):
                     response = get_resp(st.session_state.messages)
                 st.write_stream(stream_text(response))
 
-        # Save to chat history
+        # Save to history (invisible step)
         st.session_state.messages.append({"role": "assistant", "content": response})
 
 
