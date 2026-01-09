@@ -463,3 +463,8 @@ with dataset_tab:
             )
     except Exception as e:
         st.warning(f"Could not load dataset. Error: {e}")
+
+st.markdown(
+    "<div style='text-align: center; margin-top: 7rem; margin-bottom: 0.7rem; font-size: 1.3rem; font-weight: 660;'>Created by <span style='background-color: #DDD6FE; color: #374151; padding: 2.5px 7px; border-radius: 5px; font-weight: 700; margin-left: 3px;'>Sagesse Ariyanto</span></div>",
+    unsafe_allow_html=True,
+)

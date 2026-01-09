@@ -39,24 +39,11 @@ def get_available_models():
             return json.load(file)
     else:
         try:
-            valid_models = [
-                "gemini-2.5-pro",
-                "gemini-2.5-flash",
-                "gemini-2.0-flash",
-                "gemini-2.0-flash-001",
-                "gemini-2.0-flash-lite",
-                "gemini-exp-1206",
-                "gemini-pro-latest",
-                "gemini-flash-latest",
-            ]
             models_list = []
             client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
             for model in client.models.list():
                 model_name = model.name.replace("models/", "")
-                if model_name in valid_models:
-                    models_list.append(model_name)
-                else:
-                    continue
+                models_list.append(model_name)
 
                 # Save models to a JSON file
             with open(models_file, "w") as file:
