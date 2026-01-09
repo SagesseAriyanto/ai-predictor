@@ -118,11 +118,11 @@ def predict_success(description, category, price):
 # Configure streamlit settings
 st.set_page_config(
     page_title="ValidAI - AI Startup Validator",
-    page_icon="🤖",
+    page_icon="☄️",
     layout="wide",
     menu_items={
         "About": """
-        ### ValidAI 🤖
+        ### ValidAI ☄️
         Validate your AI startup idea against 4,000+ existing tools.
         
         **Created by:** Sagesse Ariyanto\n
@@ -336,9 +336,7 @@ with validate_tab:
 # Chat Tab
 with chat_tab:
     st.subheader("Ask ValidAI", anchor=False)
-    st.caption(
-        "🤖 **Powered by Google Gemini** "
-    )
+    st.caption("✨ **Powered by Google Gemini** ")
 
     # Initialize chat history
     if "messages" not in st.session_state:
