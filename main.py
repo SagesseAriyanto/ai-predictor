@@ -145,7 +145,7 @@ with st.container(border=False):
     )
     # Copyright
     st.markdown(
-        "<div style='text-align: center; margin-bottom: 0.7rem; font-weight: 600;'>© Created by <a href='https://sagesseariyanto.com/' style='font-weight: bold; text-decoration: none; color: inherit;'>Sagesse Ariyanto</a></div>",
+        "<div style='text-align: center; margin-bottom: 0.7rem; font-weight: 600;'>By <a href='https://sagesseariyanto.com/' style='font-weight: bold; text-decoration: none; color: inherit;'>Sagesse Ariyanto</a></div>",
         unsafe_allow_html=True,
     )
 
