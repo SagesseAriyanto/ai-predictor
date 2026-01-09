@@ -340,41 +340,37 @@ with chat_tab:
         "🤖 **Powered by Google Gemini** "
     )
 
-    history_section = st.container()
-    with history_section:
-        # Display info message if no chat history
-        if not st.session_state.messages:
-            st.info(
-                "Ask me about AI concepts, pricing models, or tool categories.",
-                icon="👋",
-            )
-        # Container for chat history
-        elif len(st.session_state.messages) > 2:
-            with st.expander(f"Chat History ({(len(st.session_state.messages) - 2) // 2} messages)", expanded=False, icon="📜"):
-
+    # Initialize chat history
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    # No chat history, display a welcome message
-    if not st.session_state.messages:
-        st.info(
-            """
-            👋 **Welcome! Ask me anything about the AI landscape.**
-            
-            Try asking:
-            * "What categories do you have?"
-            * "Do you have free tools for coding?"
-            """
-        )
+    # Display existing messages if chat history exists
+    else:
+        info_section = st.container()
+        with info_section:
+            if len(st.session_state.messages) > 2:
+                pairs = (len(st.session_state.messages) - 2) // 2
+                with st.expander(f"Chat History ({pairs})", expanded=False, icon="💬"):
+                    history_container = st.container(border=False, height=200)
+                    with history_container:
+                        # Display all but last 2 messages
+                        for message in st.session_state.messages[:-2]:
+                            with st.chat_message(message["role"]):
+                                st.markdown(message["content"])
 
-    with messages_container:
-        for message in st.session_state.messages:
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
+            # Display info message if chat history <= 2
+            else:
+                st.info(
+                    "Ask me about AI concepts, pricing models, or tool categories.",
+                    icon="👋",
+                )
 
+    # Input box for new messages
     if prompt := st.chat_input(
         "Ask about AI categories, pricing, or concepts...", max_chars=150
     ):
+        messages_container = st.container(border=False, height=170)
+
         st.session_state.messages.append({"role": "user", "content": prompt})
         with messages_container:
             # User Message
@@ -389,7 +385,6 @@ with chat_tab:
 
         # Save to history (invisible step)
         st.session_state.messages.append({"role": "assistant", "content": response})
-
 
 # Dataset Tab
 with dataset_tab:
