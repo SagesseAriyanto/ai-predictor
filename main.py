@@ -1,3 +1,4 @@
+from itertools import count
 import streamlit as st
 import pickle
 import numpy as np
@@ -339,15 +340,22 @@ with chat_tab:
         "🤖 **Powered by Google Gemini** "
     )
 
-    # 2. The Message Area (Container)
-    # We use a container to group messages, but NO fixed height.
-    # This allows the page to scroll naturally while the input stays fixed.
-    messages_container = st.container()
+    history_section = st.container()
+    with history_section:
+        # Display info message if no chat history
+        if not st.session_state.messages:
+            st.info(
+                "Ask me about AI concepts, pricing models, or tool categories.",
+                icon="👋",
+            )
+        # Container for chat history
+        elif len(st.session_state.messages) > 2:
+            with st.expander(f"Chat History ({(len(st.session_state.messages) - 2) // 2} messages)", expanded=False, icon="📜"):
 
     if "messages" not in st.session_state:
-            st.session_state.messages = []
+        st.session_state.messages = []
 
-        # No chat history, display a welcome message
+    # No chat history, display a welcome message
     if not st.session_state.messages:
         st.info(
             """
